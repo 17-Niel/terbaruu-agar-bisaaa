@@ -1,0 +1,74 @@
+name: Laravel CI
+
+on:
+  pull_request:
+    branches: [main, master] # tetap hanya untuk PR ke main/master
+  push:
+    branches: ["*"] # jalan untuk semua branch
+
+jobs:
+  laravel-ci:
+    name: Run Laravel Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          extensions: mbstring, pdo, sqlite, bcmath, intl, xml, curl, zip, pgsql
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      # ⚙️ Setup Laravel environment
+      - name: Ensure .env exists and APP_KEY is set
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      # 🧹 Jalankan Laravel Pint (auto-fix code style)
+      - name: Run Pint (auto fix)
+        run: vendor/bin/pint
+
+      # ✅ Pastikan hasil Pint sudah bersih (tidak ada yang terlewat)
+      - name: Run Pint (test)
+        run: vendor/bin/pint --test
+
+      # 🧹 Jalankan Eslint untuk (auto-fix code style)
+      - name: Run ESLint (auto fix)
+        run: npx eslint . --fix
+
+      # 🔍 Run ESLint untuk JavaScript/TypeScript
+      - name: Run ESLint (test)
+        run: npx eslint . --format table
+
+      # 🕵️ Audit keamanan dependency Laravel
+      - name: Composer Audit
+        run: composer audit --no-interaction
+
+      # 🕵️ Audit keamanan dependency NodeJS
+      - name: NPM Audit
+        run: npm audit --audit-level=moderate
+
+      # 🧠 Analisis statis dengan PHPStan
+      - name: Run PHPStan
+        run: vendor/bin/phpstan analyse --memory-limit=1G
+
+      # 🧪 Jalankan test + coverage
+      - name: Run PHPUnit with Coverage
+        run: php artisan test --coverage
