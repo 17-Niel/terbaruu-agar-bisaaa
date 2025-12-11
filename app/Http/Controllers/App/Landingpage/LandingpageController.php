@@ -8,7 +8,6 @@ use App\Models\CampusHiringModel;
 use App\Models\LamaranCampusHiringModel;
 use App\Models\LowonganPekerjaanModel;
 use App\Models\PerusahaanModel;
-use App\Models\PengumumanModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
@@ -83,27 +82,6 @@ class LandingpageController extends Controller
                 });
                 $contentData = $companies;
                 break;
-
-        // terbaruu
-        case 'pengumuman':
-                $query = PengumumanModel::query();
-                
-                if ($search) {
-                    $query->where('judul', 'LIKE', "%{$search}%")
-                          ->orWhere('konten', 'LIKE', "%{$search}%");
-                }
-
-                $contentData = $query->orderBy('created_at', 'desc')
-                    ->paginate(9)
-                    ->withQueryString();
-
-                // Tambahkan URL lampiran
-                $contentData->getCollection()->transform(function ($item) {
-                    $item->attachment_url = $item->attachment ? asset('storage/' . $item->attachment) : null;
-                    return $item;
-                });
-                break;
-
 
             case 'lowongan':
             default:
