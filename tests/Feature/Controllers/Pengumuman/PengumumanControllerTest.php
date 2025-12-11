@@ -5,16 +5,16 @@ namespace Tests\Feature\Controllers\Pengumuman;
 use App\Http\Controllers\App\Pengumuman\PengumumanController;
 use App\Models\PengumumanModel;
 use App\Models\User;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
+use Mockery;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Mockery;
 
 class PengumumanControllerTest extends TestCase
 {
@@ -24,17 +24,17 @@ class PengumumanControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         PengumumanModel::unguard();
 
         // Pastikan tabel ada di database testing (SQLite)
-        if (!Schema::hasTable('m_pengumuman')) {
+        if (! Schema::hasTable('m_pengumuman')) {
             Schema::create('m_pengumuman', function (Blueprint $table) {
                 $table->id();
                 $table->string('judul');
                 $table->text('isi');
                 $table->date('expired_date');
-                $table->string('gambar_path')->nullable(); 
+                $table->string('gambar_path')->nullable();
                 $table->timestamps();
             });
         }
@@ -84,12 +84,12 @@ class PengumumanControllerTest extends TestCase
             'judul' => 'Judul P',
             'isi' => 'Isi P',
             'expired_date' => now()->addDay()->format('Y-m-d'),
-            'gambar' => $file
+            'gambar' => $file,
         ];
 
         $this->post(action([PengumumanController::class, 'postChange']), $data)
             ->assertSessionHas('success');
-            
+
         $this->assertDatabaseHas('m_pengumuman', ['judul' => 'Judul P']);
     }
 
@@ -105,17 +105,17 @@ class PengumumanControllerTest extends TestCase
     {
         Storage::fake('public');
         $oldPath = UploadedFile::fake()->image('old.jpg')->store('uploads/pengumuman', 'public');
-        
+
         $item = PengumumanModel::create([
-            'judul' => 'Lama', 'isi' => 'Isi', 'expired_date' => now(), 'gambar_path' => $oldPath
+            'judul' => 'Lama', 'isi' => 'Isi', 'expired_date' => now(), 'gambar_path' => $oldPath,
         ]);
 
         $newFile = UploadedFile::fake()->image('new.jpg');
         $data = [
             'id' => $item->id,
-            'judul' => 'Baru', 'isi' => 'Isi', 
+            'judul' => 'Baru', 'isi' => 'Isi',
             'expired_date' => now()->addDay()->format('Y-m-d'),
-            'gambar' => $newFile // Upload gambar baru
+            'gambar' => $newFile, // Upload gambar baru
         ];
 
         $this->post(action([PengumumanController::class, 'postChange']), $data)
@@ -132,16 +132,16 @@ class PengumumanControllerTest extends TestCase
     {
         Storage::fake('public');
         $path = UploadedFile::fake()->image('old.jpg')->store('uploads/pengumuman', 'public');
-        
+
         $item = PengumumanModel::create([
-            'judul' => 'Lama', 'isi' => 'Isi', 'expired_date' => now(), 'gambar_path' => $path
+            'judul' => 'Lama', 'isi' => 'Isi', 'expired_date' => now(), 'gambar_path' => $path,
         ]);
 
         $data = [
             'id' => $item->id,
-            'judul' => 'Baru', 'isi' => 'Isi', 
+            'judul' => 'Baru', 'isi' => 'Isi',
             'expired_date' => now()->addDay()->format('Y-m-d'),
-            'delete_gambar' => true
+            'delete_gambar' => true,
         ];
 
         $this->post(action([PengumumanController::class, 'postChange']), $data);
@@ -156,9 +156,9 @@ class PengumumanControllerTest extends TestCase
         // Test Case: Hanya update teks tanpa menyentuh gambar
         // Ini penting untuk coverage 100% (melewati if upload dan elseif delete)
         $item = PengumumanModel::create([
-            'judul' => 'Awal', 
-            'isi' => 'Awal', 
-            'expired_date' => now()
+            'judul' => 'Awal',
+            'isi' => 'Awal',
+            'expired_date' => now(),
         ]);
 
         $data = [
@@ -173,7 +173,7 @@ class PengumumanControllerTest extends TestCase
 
         $this->assertDatabaseHas('m_pengumuman', [
             'id' => $item->id,
-            'judul' => 'Ubah'
+            'judul' => 'Ubah',
         ]);
     }
 
@@ -187,19 +187,19 @@ class PengumumanControllerTest extends TestCase
         // 2. PENTING: Data harus punya gambar_path
         // Agar controller mencoba memanggil Storage::delete() dan memicu Exception di atas
         $item = PengumumanModel::create([
-            'judul' => 'x', 'isi' => 'x', 'expired_date' => now(), 
-            'gambar_path' => 'dummy.jpg' 
+            'judul' => 'x', 'isi' => 'x', 'expired_date' => now(),
+            'gambar_path' => 'dummy.jpg',
         ]);
 
         $data = [
             'id' => $item->id,
-            'judul' => 'Judul', 'isi' => 'Isi', 
+            'judul' => 'Judul', 'isi' => 'Isi',
             'expired_date' => now()->addDay()->format('Y-m-d'),
-            'delete_gambar' => true // Ini trigger logika hapus -> Panggil Storage -> Exception
+            'delete_gambar' => true, // Ini trigger logika hapus -> Panggil Storage -> Exception
         ];
 
         $response = $this->post(action([PengumumanController::class, 'postChange']), $data);
-        
+
         $response->assertSessionHas('error');
     }
 
@@ -211,7 +211,7 @@ class PengumumanControllerTest extends TestCase
         $path = UploadedFile::fake()->image('del.jpg')->store('uploads/pengumuman', 'public');
 
         $item = PengumumanModel::create([
-            'judul' => 'Hapus', 'isi' => 'x', 'expired_date' => now(), 'gambar_path' => $path
+            'judul' => 'Hapus', 'isi' => 'x', 'expired_date' => now(), 'gambar_path' => $path,
         ]);
 
         $this->post(action([PengumumanController::class, 'postDelete']), ['id' => $item->id]);

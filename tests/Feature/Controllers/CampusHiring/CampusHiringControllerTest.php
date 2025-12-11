@@ -33,7 +33,9 @@ use Tests\TestCase;
 class CampusHiringControllerTest extends TestCase
 {
     protected $campusHiringMock;
+
     protected $perusahaanMock;
+
     protected $lamaranMock;
 
     protected function setUp(): void
@@ -47,13 +49,14 @@ class CampusHiringControllerTest extends TestCase
                 $mock = Mockery::mock('Inertia\AlwaysProp');
                 $mock->shouldIgnoreMissing();
                 $mock->capturedValue = $value;
+
                 return $mock;
             });
 
         // MOCK MODELS
-        $this->campusHiringMock = Mockery::mock('alias:' . CampusHiringModel::class);
-        $this->perusahaanMock   = Mockery::mock('alias:' . PerusahaanModel::class);
-        $this->lamaranMock      = Mockery::mock('alias:' . LamaranCampusHiringModel::class);
+        $this->campusHiringMock = Mockery::mock('alias:'.CampusHiringModel::class);
+        $this->perusahaanMock = Mockery::mock('alias:'.PerusahaanModel::class);
+        $this->lamaranMock = Mockery::mock('alias:'.LamaranCampusHiringModel::class);
 
         $this->campusHiringMock->shouldReceive('getJenisOptions')
             ->zeroOrMoreTimes()
@@ -97,7 +100,7 @@ class CampusHiringControllerTest extends TestCase
             ->andReturn($mockResp);
 
         $controller = new CampusHiringController;
-        $res        = $controller->index($request);
+        $res = $controller->index($request);
 
         $this->assertSame($mockResp, $res);
         $this->assertEquals('paginateData', $captured['campusHiringList']());
@@ -127,6 +130,7 @@ class CampusHiringControllerTest extends TestCase
             ->with('java', Mockery::type('callable'))
             ->andReturnUsing(function ($search, $callback) {
                 $callback($this->campusHiringMock, $search);
+
                 return $this->campusHiringMock;
             });
 
@@ -135,12 +139,13 @@ class CampusHiringControllerTest extends TestCase
             ->with(Mockery::type('callable'))
             ->andReturnUsing(function ($cb) {
                 $cb($this->campusHiringMock);
+
                 return $this->campusHiringMock;
             });
 
         $this->campusHiringMock->shouldReceive('whereRaw')->once()->andReturn($this->campusHiringMock);
         $this->campusHiringMock->shouldReceive('orWhereRaw')->times(2)->andReturn($this->campusHiringMock);
-        
+
         $this->campusHiringMock->shouldReceive('orderByDesc')->andReturn($this->campusHiringMock);
         $this->campusHiringMock->shouldReceive('paginate')->with(5)->andReturn('searchData');
 
@@ -214,8 +219,8 @@ class CampusHiringControllerTest extends TestCase
         $request = Request::create('/app/campus-hiring/change', 'POST');
         $request->attributes->set('auth', $auth);
         $request->merge([
-            'id_perusahaan'      => '1',
-            'jenis_lowongan'     => 'Full Time',
+            'id_perusahaan' => '1',
+            'jenis_lowongan' => 'Full Time',
             'nama_campus_hiring' => 'IT Trainee',
         ]);
 
@@ -235,9 +240,9 @@ class CampusHiringControllerTest extends TestCase
         $request = Request::create('/app/campus-hiring/change', 'POST');
         $request->attributes->set('auth', $auth);
         $request->merge([
-            'id_campus_hiring'   => '',
-            'id_perusahaan'      => '1',
-            'jenis_lowongan'     => 'Full Time',
+            'id_campus_hiring' => '',
+            'id_perusahaan' => '1',
+            'jenis_lowongan' => 'Full Time',
             'nama_campus_hiring' => 'IT Trainee',
         ]);
 
@@ -258,9 +263,9 @@ class CampusHiringControllerTest extends TestCase
         $request = Request::create('/app/campus-hiring/change', 'POST');
         $request->attributes->set('auth', $auth);
         $request->merge([
-            'id_campus_hiring'   => '999',
-            'id_perusahaan'      => '1',
-            'jenis_lowongan'     => 'Full Time',
+            'id_campus_hiring' => '999',
+            'id_perusahaan' => '1',
+            'jenis_lowongan' => 'Full Time',
             'nama_campus_hiring' => 'Error Job',
         ]);
 
@@ -281,12 +286,12 @@ class CampusHiringControllerTest extends TestCase
         $request = Request::create('/app/campus-hiring/change', 'POST');
         $request->attributes->set('auth', $auth);
         $request->merge([
-            'id_campus_hiring'       => '10',
-            'id_perusahaan'          => '1',
-            'jenis_lowongan'         => 'Part Time',
-            'nama_campus_hiring'     => 'Updated Job',
+            'id_campus_hiring' => '10',
+            'id_perusahaan' => '1',
+            'jenis_lowongan' => 'Part Time',
+            'nama_campus_hiring' => 'Updated Job',
             'kualifikasi_pendidikan' => ['S1'],
-            'departemen'             => 'IT',
+            'departemen' => 'IT',
         ]);
 
         $existing = Mockery::mock();
@@ -356,9 +361,9 @@ class CampusHiringControllerTest extends TestCase
     public function download_applicants_generates_excel_correctly()
     {
         $pelamar1 = (object) [
-            'nama_pelamar'    => 'Budi',
-            'email'           => 'b@c.com',
-            'url_cv'          => 'https://cv.com/budi.pdf',
+            'nama_pelamar' => 'Budi',
+            'email' => 'b@c.com',
+            'url_cv' => 'https://cv.com/budi.pdf',
             'tanggal_lamaran' => '2023-10-01 10:00:00',
         ];
 
@@ -383,7 +388,7 @@ class CampusHiringControllerTest extends TestCase
         $fontMock->shouldIgnoreMissing();
         $fontMock->shouldReceive('setBold')->andReturnSelf();
         $fontMock->shouldReceive('setSize')->andReturnSelf();
-        
+
         $alignMock = Mockery::mock();
         $alignMock->shouldIgnoreMissing();
         $alignMock->shouldReceive('setHorizontal')->andReturnSelf();
@@ -427,8 +432,8 @@ class CampusHiringControllerTest extends TestCase
     public function download_applicants_handles_null_values()
     {
         $pelamarNull = (object) [
-            'nama_pelamar'    => 'Unknown',
-            'url_cv'          => 'link',
+            'nama_pelamar' => 'Unknown',
+            'url_cv' => 'link',
             'tanggal_lamaran' => null, // Ini akan memicu branch 'else' -> '-'
         ];
 
@@ -466,7 +471,7 @@ class CampusHiringControllerTest extends TestCase
 
         // EXPECTATION:
         // 1. Title harus mengandung 'Data' karena nama job null
-        $sheetMock->shouldReceive('setCellValue')->with('A1', 'Daftar Pelamar - Data'); 
+        $sheetMock->shouldReceive('setCellValue')->with('A1', 'Daftar Pelamar - Data');
         // 2. Kolom D harus berisi '-' karena tanggal null
         $sheetMock->shouldReceive('setCellValue')->with('D4', '-');
 
@@ -501,7 +506,7 @@ class CampusHiringControllerTest extends TestCase
             ->andReturnNull();
 
         $controller = new CampusHiringController;
-        $response   = $controller->downloadApplicants('job-missing');
+        $response = $controller->downloadApplicants('job-missing');
 
         $this->assertEquals('Lowongan tidak ditemukan.', session('error'));
         $this->assertNotNull($response);

@@ -17,8 +17,6 @@ use Inertia\Inertia;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  */
-
-
 class PengumumanController extends Controller
 {
     public function index(Request $request)

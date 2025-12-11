@@ -1,16 +1,16 @@
 <?php
 
+use App\Http\Controllers\App\Artikel\ArtikelController;
 use App\Http\Controllers\App\Banner\BannerController;
+use App\Http\Controllers\App\Berita\BeritaController;
 use App\Http\Controllers\App\CampusHiring\CampusHiringController;
 use App\Http\Controllers\App\HakAkses\HakAksesController;
-use App\Http\Controllers\App\Artikel\ArtikelController;
-use App\Http\Controllers\App\Berita\BeritaController;
 use App\Http\Controllers\App\Home\HomeController;
 use App\Http\Controllers\App\Landingpage\LandingpageController;
 use App\Http\Controllers\App\LowonganPekerjaan\LowonganPekerjaanController;
+use App\Http\Controllers\App\Pengumuman\PengumumanController;
 use App\Http\Controllers\App\Perusahaan\PerusahaanController;
 use App\Http\Controllers\App\Todo\TodoController;
-use App\Http\Controllers\App\Pengumuman\PengumumanController;
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -68,6 +68,27 @@ Route::middleware(['throttle:req-limit', 'handle.inertia'])->group(function () {
             Route::post('/change', [PerusahaanController::class, 'postChange'])->name('perusahaan.change-post');
             Route::post('/delete', [PerusahaanController::class, 'postDelete'])->name('perusahaan.delete-post');
         });
+        // Pengumuman
+        Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
+            Route::get('/', [PengumumanController::class, 'index'])->name('index');
+            Route::post('/change', [PengumumanController::class, 'postChange'])->name('change');
+            Route::post('/delete', [PengumumanController::class, 'postDelete'])->name('delete');
+        });
+
+        // Berita
+        Route::prefix('berita')->name('berita.')->group(function () {
+            Route::get('/', [BeritaController::class, 'index'])->name('index');
+            Route::post('/change', [BeritaController::class, 'postChange'])->name('store');
+            Route::post('/delete', [BeritaController::class, 'postDelete'])->name('delete');
+        });
+
+        // Artikel
+        Route::prefix('artikel')->group(function () {
+            Route::get('/', [ArtikelController::class, 'index'])->name('artikel');
+            Route::post('/change', [ArtikelController::class, 'changePost'])->name('artikel.change-post');
+            Route::post('/delete', [ArtikelController::class, 'deletePost'])->name('artikel.delete-post');
+            Route::get('/detail/{id}', [ArtikelController::class, 'show'])->name('artikel.detail');
+        });
 
         Route::prefix('lowongan-pekerjaan')->group(function () {
             Route::get('/', [LowonganPekerjaanController::class, 'index'])->name('lowongan-pekerjaan');
@@ -86,26 +107,6 @@ Route::middleware(['throttle:req-limit', 'handle.inertia'])->group(function () {
             Route::get('/', [BannerController::class, 'index'])->name('banner');
             Route::post('/change', [BannerController::class, 'postChange'])->name('banner.change-post');
             Route::post('/delete', [BannerController::class, 'postDelete'])->name('banner.delete-post');
-        });
-
-          Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
-            Route::get('/', [PengumumanController::class, 'index'])->name('index');
-            Route::post('/change', [PengumumanController::class, 'postChange'])->name('change');
-            Route::post('/delete', [PengumumanController::class, 'postDelete'])->name('delete');
-        });
-
-      
-        Route::prefix('berita')->name('berita.')->group(function () {
-            Route::get('/', [BeritaController::class, 'index'])->name('index');
-            Route::post('/change', [BeritaController::class, 'postChange'])->name('store');
-            Route::post('/delete', [BeritaController::class, 'postDelete'])->name('delete');
-        });
-
-        Route::prefix('artikel')->group(function () {
-            Route::get('/', [ArtikelController::class, 'index'])->name('artikel');
-            Route::post('/change', [ArtikelController::class, 'changePost'])->name('artikel.change-post');
-            Route::post('/delete', [ArtikelController::class, 'deletePost'])->name('artikel.delete-post');
-            Route::get('/detail/{id}', [ArtikelController::class, 'show'])->name('artikel.detail');
         });
     });
 });

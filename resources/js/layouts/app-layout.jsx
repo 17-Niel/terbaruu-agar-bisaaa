@@ -63,21 +63,6 @@ export default function AppLayout({ children }) {
                     icon: Icon.IconBuilding,
                 },
                 {
-                    title: "Lowongan Pekerjaan",
-                    url: route("lowongan-pekerjaan"),
-                    icon: Icon.IconBriefcase, // pilih icon sesuai library kamu
-                },
-                {
-                    title: "Campus Hiring",
-                    url: route("campus-hiring"),
-                    icon: Icon.IconCertificate,
-                },
-                {
-                    title: "Landingpage",
-                    url: route("landing.index"),
-                    icon: Icon.IconDeviceDesktopAnalytics,
-                },
-                {
                     title: "Pengumuman",
                     url: route("pengumuman.index"),
                     icon: Icon.IconSpeakerphone,
@@ -91,6 +76,21 @@ export default function AppLayout({ children }) {
                     title: "Artikel",
                     url: route("artikel"),
                     icon: Icon.IconFile,
+                },
+                {
+                    title: "Lowongan Pekerjaan",
+                    url: route("lowongan-pekerjaan"),
+                    icon: Icon.IconBriefcase, // pilih icon sesuai library kamu
+                },
+                {
+                    title: "Campus Hiring",
+                    url: route("campus-hiring"),
+                    icon: Icon.IconCertificate,
+                },
+                {
+                    title: "Landingpage",
+                    url: route("landing.index"),
+                    icon: Icon.IconDeviceDesktopAnalytics,
                 },
             ],
         },

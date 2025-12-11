@@ -66,9 +66,8 @@ export function ArtikelChangeDialog({
         <div className="fixed inset-0 bg-black/40 flex justify-center items-start pt-24 z-50">
             <div className="bg-background rounded-lg shadow-xl w-full max-w-2xl mx-4">
                 <div className="bg-primary text-white px-6 py-3 rounded-t-lg flex items-center justify-between">
-                    <h2 classNam e="text-lg font-semibold">
-                        {dialogTitle}
-                    </h2>
+                    {/* Perbaikan: className sudah benar */}
+                    <h2 className="text-lg font-semibold">{dialogTitle}</h2>
                     <button
                         onClick={() => setOpenDialog(false)}
                         className="p-1 rounded hover:bg-accent"
@@ -131,9 +130,10 @@ export function ArtikelChangeDialog({
                             accept="image/*,application/pdf"
                             onChange={handleFileChange}
                         />
+                        {/* Perbaikan: Menambahkan 'bg-accent' pada hover agar valid */}
                         <label
                             htmlFor="file-upload-edit"
-                            className="inline-flex items-center gap-2 border border-input rounded-md px-3 py-2 cursor-pointer text-sm hover:"
+                            className="inline-flex items-center gap-2 border border-input rounded-md px-3 py-2 cursor-pointer text-sm hover:bg-accent"
                         >
                             <Icon.IconUpload size={16} />
                             <span>
@@ -148,7 +148,7 @@ export function ArtikelChangeDialog({
                 <div className="p-6 flex justify-end">
                     <button
                         onClick={() => setOpenDialog(false)}
-                        className="mr-3 px-4 py-2 rounded border border-input"
+                        className="mr-3 px-4 py-2 rounded border border-input hover:bg-accent"
                     >
                         Batal
                     </button>

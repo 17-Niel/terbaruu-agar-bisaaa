@@ -5,11 +5,11 @@ namespace Tests\Feature\Controllers\Berita;
 use App\Http\Controllers\App\Berita\BeritaController;
 use App\Models\BeritaModel;
 use App\Models\User;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\Test;
@@ -27,7 +27,7 @@ class BeritaControllerTest extends TestCase
         BeritaModel::unguard();
 
         // 1. Sesuaikan Schema dengan BeritaController (isi, status, tanggal, author, gambar)
-        if (!Schema::hasTable('m_berita')) {
+        if (! Schema::hasTable('m_berita')) {
             Schema::create('m_berita', function (Blueprint $table) {
                 $table->id('id_berita'); // Primary Key
                 $table->string('judul');
@@ -48,16 +48,16 @@ class BeritaControllerTest extends TestCase
     {
         // Setup Data
         BeritaModel::create([
-            'judul' => 'Berita A', 
-            'isi' => 'Konten A', 
+            'judul' => 'Berita A',
+            'isi' => 'Konten A',
             'status' => 'published',
-            'tanggal' => now()
+            'tanggal' => now(),
         ]);
         BeritaModel::create([
-            'judul' => 'Info B', 
-            'isi' => 'Konten B', 
+            'judul' => 'Info B',
+            'isi' => 'Konten B',
             'status' => 'draft',
-            'tanggal' => now()
+            'tanggal' => now(),
         ]);
 
         // 1. Test Index (Tanpa Filter)
@@ -96,7 +96,7 @@ class BeritaControllerTest extends TestCase
             'status' => 'published', // Wajib ada karena validasi 'required'
             'tanggal' => now()->format('Y-m-d'),
             'author' => 'Tester',
-            'gambar' => $file
+            'gambar' => $file,
         ];
 
         // Panggil method postChange (sesuai controller)
@@ -106,7 +106,7 @@ class BeritaControllerTest extends TestCase
         $response->assertSessionHas('message', 'Data berhasil disimpan');
 
         $this->assertDatabaseHas('m_berita', ['judul' => 'Judul Baru']);
-        
+
         $berita = BeritaModel::where('judul', 'Judul Baru')->first();
         $this->assertNotNull($berita->gambar);
         Storage::disk('public')->assertExists($berita->gambar);
@@ -122,7 +122,7 @@ class BeritaControllerTest extends TestCase
             'judul' => 'Lama',
             'isi' => 'Isi',
             'status' => 'draft',
-            'gambar' => $path
+            'gambar' => $path,
         ]);
 
         $data = [
@@ -130,7 +130,7 @@ class BeritaControllerTest extends TestCase
             'judul' => 'Baru',
             'isi' => 'Isi Baru',
             'status' => 'published',
-            'delete_gambar' => true // Trigger hapus gambar
+            'delete_gambar' => true, // Trigger hapus gambar
         ];
 
         $this->post(action([BeritaController::class, 'postChange']), $data);
@@ -144,16 +144,16 @@ class BeritaControllerTest extends TestCase
     {
         Storage::fake('public');
         $oldPath = UploadedFile::fake()->image('old.jpg')->store('berita', 'public');
-        
+
         $berita = BeritaModel::create([
-            'judul' => 'Lama', 'isi' => 'Isi', 'status' => 'draft', 'gambar' => $oldPath
+            'judul' => 'Lama', 'isi' => 'Isi', 'status' => 'draft', 'gambar' => $oldPath,
         ]);
 
         $newFile = UploadedFile::fake()->image('new.jpg');
         $data = [
             'id' => $berita->id_berita,
             'judul' => 'Lama', 'isi' => 'Isi', 'status' => 'draft',
-            'gambar' => $newFile
+            'gambar' => $newFile,
         ];
 
         $this->post(action([BeritaController::class, 'postChange']), $data);
@@ -170,7 +170,7 @@ class BeritaControllerTest extends TestCase
         $path = UploadedFile::fake()->image('del.jpg')->store('berita', 'public');
 
         $berita = BeritaModel::create([
-            'judul' => 'Hapus', 'isi' => 'x', 'status' => 'draft', 'gambar' => $path
+            'judul' => 'Hapus', 'isi' => 'x', 'status' => 'draft', 'gambar' => $path,
         ]);
 
         // Panggil method postDelete (sesuai controller)

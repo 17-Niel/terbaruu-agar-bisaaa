@@ -2,14 +2,13 @@
 
 namespace Tests\Feature\Controllers\Artikel;
 
-use App\Http\Controllers\App\Artikel\ArtikelController;
 use App\Models\ArtikelModel;
 use App\Models\User;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia;
 use PHPUnit\Framework\Attributes\Test;
@@ -26,7 +25,7 @@ class ArtikelControllerTest extends TestCase
 
         ArtikelModel::unguard();
 
-        if (!Schema::hasTable('artikels')) {
+        if (! Schema::hasTable('artikels')) {
             Schema::create('artikels', function (Blueprint $table) {
                 $table->uuid('id')->primary();
                 $table->string('title');
@@ -48,7 +47,7 @@ class ArtikelControllerTest extends TestCase
         ArtikelModel::create([
             'title' => 'Artikel Pertama',
             'content' => 'Isi konten pertama',
-            'category' => 'Umum'
+            'category' => 'Umum',
         ]);
 
         $response = $this->get(route('artikel'));
@@ -83,7 +82,7 @@ class ArtikelControllerTest extends TestCase
             'title' => 'Detail Title',
             'content' => 'Detail Content',
             'category' => 'News',
-            'attachment' => null // Tidak ada file
+            'attachment' => null, // Tidak ada file
         ]);
 
         $response = $this->get(route('artikel.detail', ['id' => $artikel->id]));
@@ -105,7 +104,7 @@ class ArtikelControllerTest extends TestCase
             'title' => 'With File',
             'content' => 'Content',
             'category' => 'News',
-            'attachment' => 'dummy.pdf' // Pura-pura ada file
+            'attachment' => 'dummy.pdf', // Pura-pura ada file
         ]);
 
         $this->get(route('artikel.detail', ['id' => $artikel->id]))
@@ -126,7 +125,7 @@ class ArtikelControllerTest extends TestCase
             'title' => 'Artikel Baru',
             'content' => 'Isi Artikel Baru',
             'category' => 'Teknologi',
-            'attachment' => $file
+            'attachment' => $file,
         ];
 
         $response = $this->post(route('artikel.change-post'), $data);
@@ -136,7 +135,7 @@ class ArtikelControllerTest extends TestCase
 
         $this->assertDatabaseHas('artikels', [
             'title' => 'Artikel Baru',
-            'category' => 'Teknologi'
+            'category' => 'Teknologi',
         ]);
 
         $artikel = ArtikelModel::where('title', 'Artikel Baru')->first();
@@ -150,14 +149,14 @@ class ArtikelControllerTest extends TestCase
         $artikel = ArtikelModel::create([
             'title' => 'Judul Lama',
             'content' => 'Isi Lama',
-            'category' => 'Old'
+            'category' => 'Old',
         ]);
 
         $data = [
             'id' => $artikel->id,
             'title' => 'Judul Update',
             'content' => 'Isi Update',
-            'category' => 'New'
+            'category' => 'New',
         ];
 
         $response = $this->post(route('artikel.change-post'), $data);
@@ -165,7 +164,7 @@ class ArtikelControllerTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('artikels', [
             'id' => $artikel->id,
-            'title' => 'Judul Update'
+            'title' => 'Judul Update',
         ]);
     }
 
@@ -184,7 +183,7 @@ class ArtikelControllerTest extends TestCase
         $artikel3 = ArtikelModel::create(['title' => 'C', 'content' => 'C', 'category' => 'C']);
 
         $response = $this->post(route('artikel.delete-post'), [
-            'artikelIds' => [$artikel1->id, $artikel2->id]
+            'artikelIds' => [$artikel1->id, $artikel2->id],
         ]);
 
         $response->assertRedirect();
@@ -203,7 +202,7 @@ class ArtikelControllerTest extends TestCase
     {
         // Kirim request tanpa artikelIds atau array kosong
         $response = $this->post(route('artikel.delete-post'), [
-            'artikelIds' => [] 
+            'artikelIds' => [],
         ]);
 
         $response->assertRedirect();
