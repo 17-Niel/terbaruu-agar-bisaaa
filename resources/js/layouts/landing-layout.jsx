@@ -25,7 +25,7 @@ export default function LandingLayout({ children, auth, title = "Career Center I
     const menus = [
         { label: 'Home', route: 'landing.index', id: 'home' },
         { label: 'Berita', route: '#', id: 'berita' },
-        { label: 'Pengumuman', route: '#', id: 'pengumuman' },
+        { label: 'Pengumuman', route: 'landing.pengumuman', id: 'pengumuman' },
         { label: 'Daftar Perusahaan', route: 'landing.perusahaan', id: 'perusahaan' },
         { label: 'Lowongan Pekerjaan', route: 'landing.lowongan', id: 'lowongan' },
         { label: 'Campus Hiring', route: 'landing.campus-hiring', id: 'campus-hiring' },

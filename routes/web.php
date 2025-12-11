@@ -14,21 +14,25 @@ use App\Http\Controllers\App\Todo\TodoController;
 use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
+// --- GROUP 1: GLOBAL MIDDLEWARE (Throttle & Inertia) ---
 Route::middleware(['throttle:req-limit', 'handle.inertia'])->group(function () {
 
     Route::post('/apply-campus-hiring', [LandingpageController::class, 'storeLamaran'])
         ->name('landing.lamar-campus-hiring')
         ->middleware([\App\Http\Middleware\OptionalAuthMiddleware::class]);
 
-    // === GROUP LANDING PAGE (Public & Optional Auth) ===
+    // --- GROUP 2: LANDING PAGE (Public & Optional Auth) ---
     Route::middleware([\App\Http\Middleware\OptionalAuthMiddleware::class])->group(function () {
         // Halaman Utama
         Route::get('/', [LandingpageController::class, 'index'])->name('landing.index');
 
-        // Halaman Menu Khusus (URL Diubah agar tidak bentrok dengan Admin)
+        // Halaman Menu Khusus
         Route::get('/daftar-perusahaan', [LandingpageController::class, 'perusahaan'])->name('landing.perusahaan');
         Route::get('/daftar-lowongan', [LandingpageController::class, 'lowongan'])->name('landing.lowongan');
         Route::get('/program-campus-hiring', [LandingpageController::class, 'campusHiring'])->name('landing.campus-hiring');
+        
+        // Halaman Pengumuman (SUDAH BENAR DISINI)
+        Route::get('/pengumuman', [LandingpageController::class, 'pengumuman'])->name('landing.pengumuman');
     });
 
     // SSO Routes
@@ -46,7 +50,7 @@ Route::middleware(['throttle:req-limit', 'handle.inertia'])->group(function () {
         Route::post('/totp-post', [AuthController::class, 'postTotp'])->name('auth.totp-post');
     });
 
-    // Protected Routes
+    // --- GROUP 3: PROTECTED ROUTES (Admin/User Login) ---
     Route::group(['middleware' => 'check.auth'], function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
 
@@ -68,21 +72,22 @@ Route::middleware(['throttle:req-limit', 'handle.inertia'])->group(function () {
             Route::post('/change', [PerusahaanController::class, 'postChange'])->name('perusahaan.change-post');
             Route::post('/delete', [PerusahaanController::class, 'postDelete'])->name('perusahaan.delete-post');
         });
-        // Pengumuman
+
+        // Pengumuman Admin
         Route::prefix('pengumuman')->name('pengumuman.')->group(function () {
             Route::get('/', [PengumumanController::class, 'index'])->name('index');
             Route::post('/change', [PengumumanController::class, 'postChange'])->name('change');
             Route::post('/delete', [PengumumanController::class, 'postDelete'])->name('delete');
         });
 
-        // Berita
+        // Berita Admin
         Route::prefix('berita')->name('berita.')->group(function () {
             Route::get('/', [BeritaController::class, 'index'])->name('index');
             Route::post('/change', [BeritaController::class, 'postChange'])->name('store');
             Route::post('/delete', [BeritaController::class, 'postDelete'])->name('delete');
         });
 
-        // Artikel
+        // Artikel Admin
         Route::prefix('artikel')->group(function () {
             Route::get('/', [ArtikelController::class, 'index'])->name('artikel');
             Route::post('/change', [ArtikelController::class, 'changePost'])->name('artikel.change-post');
@@ -108,5 +113,6 @@ Route::middleware(['throttle:req-limit', 'handle.inertia'])->group(function () {
             Route::post('/change', [BannerController::class, 'postChange'])->name('banner.change-post');
             Route::post('/delete', [BannerController::class, 'postDelete'])->name('banner.delete-post');
         });
-    });
-});
+
+    }); // Penutup Group check.auth
+}); // Penutup Group throttle & inertia

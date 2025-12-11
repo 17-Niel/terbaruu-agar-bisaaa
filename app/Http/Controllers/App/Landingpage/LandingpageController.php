@@ -7,6 +7,7 @@ use App\Models\BannerModel;
 use App\Models\CampusHiringModel;
 use App\Models\LamaranCampusHiringModel;
 use App\Models\LowonganPekerjaanModel;
+use App\Models\PengumumanModel; // [BARU] Jangan lupa import model ini
 use App\Models\PerusahaanModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -117,8 +118,8 @@ class LandingpageController extends Controller
         $search = $request->query('search', '');
 
         // Buat dua variabel tanggal
-        $toleranceDate = Carbon::now()->subDays(3); // Tidak dipakai di query ini, tapi konsisten
-        $activeDate = Carbon::today(); // [BARU] Hanya hitung yang aktif mulai hari ini
+        $toleranceDate = Carbon::now()->subDays(3); 
+        $activeDate = Carbon::today(); 
 
         $query = PerusahaanModel::query();
         if ($search) {
@@ -130,7 +131,7 @@ class LandingpageController extends Controller
         // Gunakan $activeDate untuk menghitung total_jobs
         $companies->getCollection()->transform(function ($company) use ($activeDate) {
             $countLowongan = LowonganPekerjaanModel::where('id_perusahaan', $company->id_perusahaan)
-                ->whereDate('batas_akhir', '>=', $activeDate)->count(); // Hanya yang belum expired
+                ->whereDate('batas_akhir', '>=', $activeDate)->count(); 
 
             $countCampus = CampusHiringModel::where('id_perusahaan', $company->id_perusahaan)
                 ->whereDate('batas_akhir', '>=', $activeDate)->count();
@@ -153,7 +154,7 @@ class LandingpageController extends Controller
         $search = $request->query('search', '');
         $degree = $request->query('degree', 'All Degree');
         $degreeOptions = ['D3', 'D4', 'S1', 'S2', 'S3'];
-        $toleranceDate = Carbon::now()->subDays(3); // [KEMBALI KE ASAL]
+        $toleranceDate = Carbon::now()->subDays(3); 
 
         $query = LowonganPekerjaanModel::query();
         $query->join('m_perusahaan', 't_lowongan_pekerjaan.id_perusahaan', '=', 'm_perusahaan.id_perusahaan')
@@ -188,7 +189,7 @@ class LandingpageController extends Controller
         $search = $request->query('search', '');
         $degree = $request->query('degree', 'All Degree');
         $degreeOptions = ['D3', 'D4', 'S1', 'S2', 'S3'];
-        $toleranceDate = Carbon::now()->subDays(3); // [KEMBALI KE ASAL]
+        $toleranceDate = Carbon::now()->subDays(3); 
 
         $query = CampusHiringModel::query();
         $query->join('m_perusahaan', 't_campus_hiring.id_perusahaan', '=', 'm_perusahaan.id_perusahaan')
@@ -213,6 +214,39 @@ class LandingpageController extends Controller
             'auth' => $authData,
             'degreeOptions' => $degreeOptions,
             'state' => ['search' => $search, 'degree' => $degree],
+            'contentData' => $contentData,
+        ]);
+    }
+
+    // --- [BARU] FUNGSI PENGUMUMAN ---
+    public function pengumuman(Request $request)
+    {
+        $authData = $this->getAuthData($request);
+        $search = $request->query('search', '');
+        $today = Carbon::today();
+
+        $query = PengumumanModel::query();
+
+        // Logika Pencarian (Judul atau Isi)
+        if ($search) {
+            $searchTerm = strtolower($search);
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('LOWER(judul) LIKE ?', ["%{$searchTerm}%"])
+                  ->orWhereRaw('LOWER(isi) LIKE ?', ["%{$searchTerm}%"]);
+            });
+        }
+
+        // Filter: Hanya tampilkan yang expired_date >= hari ini
+        $query->whereDate('expired_date', '>=', $today);
+
+        // Urutkan dari yang terbaru
+        $query->orderBy('created_at', 'desc');
+
+        $contentData = $query->paginate(9)->withQueryString();
+
+        return Inertia::render('app/landingpage/landing-pengumuman-page', [
+            'auth' => $authData,
+            'state' => ['search' => $search],
             'contentData' => $contentData,
         ]);
     }
